@@ -1,9 +1,19 @@
 <template>
   <div class="home">
-    <div class="count">count: {{ state.count }}</div>
-    <div class="double">double: {{ state.double }}</div>
-    <button @click="countUp">CountUp</button>
-    <button @click="clear">Clear</button>
+    <div class="count text-xl mb-1">count: {{ state.count }}</div>
+    <div class="double text-xl mb-4">double: {{ state.double }}</div>
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none"
+      @click="countUp"
+    >
+      CountUp
+    </button>
+    <button
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none"
+      @click="clear"
+    >
+      Clear
+    </button>
   </div>
 </template>
 

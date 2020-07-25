@@ -1,6 +1,9 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
+  <div
+    id="app"
+    class="h-screen text-font-color flex flex-col justify-center items-center"
+  >
+    <div class="text-4xl">Vue3 Demo</div>
     <router-view></router-view>
   </div>
 </template>
@@ -14,12 +17,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+body {
+  @apply bg-gray-800;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
