@@ -1,15 +1,15 @@
 <template>
   <div class="home">
-    <div class="count text-xl mb-1">count: {{ state.count }}</div>
-    <div class="double text-xl mb-4">double: {{ state.double }}</div>
+    <div class="mb-1 text-xl count">count: {{ state.count }}</div>
+    <div class="mb-4 text-xl double">double: {{ state.double }}</div>
     <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none"
+      class="px-4 py-2 mx-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none"
       @click="countUp"
     >
       CountUp
     </button>
     <button
-      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none"
+      class="px-4 py-2 mx-2 font-bold text-white bg-red-500 rounded hover:bg-red-700 focus:outline-none"
       @click="clear"
     >
       Clear
