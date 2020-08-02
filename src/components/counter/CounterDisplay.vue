@@ -4,12 +4,10 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
-import { CounterKey } from '../inject-keys'
-import injectOrError from '../inject-or-error'
-
+import { useGlobalStore } from '@/store/index'
 export default defineComponent({
   setup() {
-    const counter = injectOrError(CounterKey)
+    const { counter } = useGlobalStore()
     const count = computed(() => counter.count)
     return {
       count,

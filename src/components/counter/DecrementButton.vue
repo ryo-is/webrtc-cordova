@@ -9,12 +9,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { CounterKey } from '../inject-keys'
-import injectOrError from '../inject-or-error'
-
+import { useGlobalStore } from '@/store/index'
 export default defineComponent({
   setup() {
-    const counter = injectOrError(CounterKey)
+    const { counter } = useGlobalStore()
     return {
       decrement: counter.decrement,
     }
