@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import AppHeader from '@/components/header.vue'
+import AppHeader from '@/components/elements/header.vue'
 
 export default defineComponent({
   name: 'App',
