@@ -33,7 +33,7 @@
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineComponent, onMounted, reactive } from 'vue'
-import Peer, { MeshRoom } from 'skyway-js'
+import Peer, { SfuRoom } from 'skyway-js'
 
 type State = {
   peerID: string
@@ -48,7 +48,7 @@ const peer = new Peer({
 })
 
 let localStream: MediaStream
-let room: MeshRoom
+let room: SfuRoom
 let localVideo
 let remoteVideos: HTMLElement
 
@@ -65,11 +65,13 @@ export default defineComponent({
         return
       }
       room = peer.joinRoom(state.roomID, {
-        mode: 'mesh',
+        mode: 'sfu',
         stream: localStream,
       })
+      console.log(room)
 
       room.on('stream', async (stream) => {
+        console.log('stream', stream)
         const newVideo = document.createElement('video') as any
         newVideo.srcObject = stream
         newVideo.playsInline = true
