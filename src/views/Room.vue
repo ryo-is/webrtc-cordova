@@ -1,6 +1,12 @@
 <template>
   <div class="room">
-    <video id="js-local-stream" width="400" autoplay playsinline></video>
+    <video
+      id="js-local-stream"
+      class="m-auto"
+      width="400"
+      autoplay
+      playsinline
+    ></video>
     <div class="my-4">
       <input
         v-model="state.roomID"
@@ -25,7 +31,7 @@
       Leave
     </button>
 
-    <div class="remote-streams" id="js-remote-streams"></div>
+    <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
   </div>
 </template>
 
@@ -35,7 +41,6 @@ import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { SfuRoom } from 'skyway-js'
 
 type State = {
-  peerID: string
   roomID: string
 }
 
@@ -55,7 +60,6 @@ export default defineComponent({
   name: 'home',
   setup() {
     const state: State = reactive({
-      peerID: '',
       roomID: '',
     })
 
@@ -75,13 +79,11 @@ export default defineComponent({
         const newVideo = document.createElement('video') as any
         newVideo.srcObject = stream
         newVideo.playsInline = true
+        newVideo.width = 400
+        newVideo.className = 'flex-1 mx-2'
         newVideo.setAttribute('data-peer-id', stream.peerId)
         remoteVideos.append(newVideo)
         await newVideo.play().catch(console.error)
-      })
-
-      room.on('peerJoin', (peerId) => {
-        console.log('peerJoin', peerId)
       })
 
       room.on('peerLeave', (peerId) => {
@@ -99,11 +101,13 @@ export default defineComponent({
 
       room.once('close', () => {
         Array.from(remoteVideos.children).forEach((remoteVideo: any) => {
-          remoteVideo.srcObject
-            .getTracks()
-            .forEach((track: any) => track.stop())
-          remoteVideo.srcObject = null
-          remoteVideo.remove()
+          if (remoteVideo.srcObject) {
+            remoteVideo.srcObject
+              .getTracks()
+              .forEach((track: any) => track.stop())
+            remoteVideo.srcObject = null
+            remoteVideo.remove()
+          }
         })
       })
     }
