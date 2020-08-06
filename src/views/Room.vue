@@ -84,7 +84,10 @@ export default defineComponent({
         const remoteVideo = remoteVideos.querySelector(
           `[data-peer-id="${peerId}"]`
         ) as any
-        remoteVideo.srcObject.getTracks().forEach((track: any) => track.stop())
+        if (remoteVideo)
+          remoteVideo.srcObject
+            .getTracks()
+            .forEach((track: any) => track.stop())
         remoteVideo.srcObject = null
         remoteVideo.remove()
       })
