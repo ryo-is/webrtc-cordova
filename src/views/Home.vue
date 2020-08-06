@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <video id="skyway-video" width="400" autoplay muted playsinline></video>
+    <video id="skyway-video" width="400" autoplay playsinline></video>
     <p>{{ state.peerID }}</p>
     <div class="mb-4">
       <label class="block text-md font-bold mb-2" for="their-id">
@@ -21,7 +21,14 @@
     >
       Call
     </button>
-    <video id="their-video" width="400" autoplay muted playsinline></video>
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
+      type="button"
+      @click="onCancel"
+    >
+      Cansel
+    </button>
+    <video id="their-video" width="400" autoplay playsinline></video>
   </div>
 </template>
 
@@ -42,6 +49,7 @@ const peer = new Peer({
 })
 
 let localStream: MediaStream
+let localMediaConnection: MediaConnection
 
 export default defineComponent({
   name: 'home',
@@ -62,8 +70,12 @@ export default defineComponent({
     }
 
     const onCall = () => {
-      const mediaConnection = peer.call(state.theirID, localStream)
-      setEventListener(mediaConnection)
+      localMediaConnection = peer.call(state.theirID, localStream)
+      setEventListener(localMediaConnection)
+    }
+
+    const onCancel = () => {
+      if (localMediaConnection) localMediaConnection.close(true)
     }
 
     onMounted(() => {
@@ -95,7 +107,7 @@ export default defineComponent({
       })
     })
 
-    return { state, onCall }
+    return { state, onCall, onCancel }
   },
 })
 </script>
