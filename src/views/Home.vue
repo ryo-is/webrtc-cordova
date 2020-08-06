@@ -42,8 +42,8 @@ type State = {
 }
 
 const peer = new Peer({
-  key: process.env.VUE_APP_AKYWAY_APIKEY
-    ? process.env.VUE_APP_AKYWAY_APIKEY
+  key: process.env.VUE_APP_SKYWAY_APIKEY
+    ? process.env.VUE_APP_SKYWAY_APIKEY
     : '',
   debug: 3,
 })
