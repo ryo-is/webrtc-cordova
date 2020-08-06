@@ -1,7 +1,6 @@
 <template>
   <div class="room">
     <video id="js-local-stream" width="400" autoplay playsinline></video>
-    <p>{{ state.peerID }}</p>
     <div class="my-4">
       <input
         v-model="state.roomID"
@@ -64,11 +63,12 @@ export default defineComponent({
       if (!peer.open) {
         return
       }
+      console.log(localStream)
       room = peer.joinRoom(state.roomID, {
         mode: 'sfu',
         stream: localStream,
       })
-      console.log(room)
+      console.log('room', room)
 
       room.on('stream', async (stream) => {
         console.log('stream', stream)
@@ -80,16 +80,21 @@ export default defineComponent({
         await newVideo.play().catch(console.error)
       })
 
+      room.on('peerJoin', (peerId) => {
+        console.log('peerJoin', peerId)
+      })
+
       room.on('peerLeave', (peerId) => {
         const remoteVideo = remoteVideos.querySelector(
           `[data-peer-id="${peerId}"]`
         ) as any
-        if (remoteVideo)
+        if (remoteVideo) {
           remoteVideo.srcObject
             .getTracks()
             .forEach((track: any) => track.stop())
-        remoteVideo.srcObject = null
-        remoteVideo.remove()
+          remoteVideo.srcObject = null
+          remoteVideo.remove()
+        }
       })
 
       room.once('close', () => {
@@ -108,19 +113,21 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      localVideo = document.getElementById('js-local-stream') as any
-      remoteVideos = document.getElementById('js-remote-streams') as any
-      const localStream = await navigator.mediaDevices
-        .getUserMedia({
+      try {
+        localVideo = document.getElementById('js-local-stream') as any
+        remoteVideos = document.getElementById('js-remote-streams') as any
+        localStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: true,
         })
-        .catch(console.error)
 
-      localVideo.muted = true
-      localVideo.srcObject = localStream
-      localVideo.playsInline = true
-      await localVideo.play().catch(console.error)
+        localVideo.muted = true
+        localVideo.srcObject = localStream
+        localVideo.playsInline = true
+        await localVideo.play()
+      } catch (err) {
+        console.error(err)
+      }
     })
 
     return { state, onJoin, onLeave }
