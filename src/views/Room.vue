@@ -25,18 +25,20 @@
         Leave
       </button>
     </app-header>
-    <video
-      id="js-local-stream"
-      class="m-auto"
-      width="400"
-      autoplay
-      playsinline
-      muted
-    ></video>
-    <video-button
-      :video="state.video"
-      @change-video="onChangeVideo"
-    ></video-button>
+    <div class="local-stream-wrapper relative">
+      <video
+        id="js-local-stream"
+        class="m-auto"
+        autoplay
+        playsinline
+        muted
+      ></video>
+      <video-button
+        class="video-button absolute"
+        :video="state.video"
+        @change-video="onChangeVideo"
+      ></video-button>
+    </div>
 
     <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
   </div>
@@ -167,3 +169,14 @@ export default defineComponent({
   },
 })
 </script>
+
+<style lang="scss" scoped>
+.local-stream-wrapper {
+  height: 480px;
+  width: 640px;
+}
+.video-button {
+  bottom: 12px;
+  right: 12px;
+}
+</style>
