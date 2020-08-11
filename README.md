@@ -32,3 +32,11 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### SkyWay APIKey
+
+add `.env` file
+
+```
+VUE_APP_SKYWAY_APIKEY={API_KEY}
+```
