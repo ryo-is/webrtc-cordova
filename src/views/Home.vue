@@ -28,7 +28,13 @@
     </app-header>
 
     <div class="video-wrapper relative">
-      <video id="skyway-video" autoplay playsinline muted></video>
+      <video
+        id="skyway-video"
+        class="mx-auto"
+        autoplay
+        playsinline
+        muted
+      ></video>
       <div
         class="button-wrapper absolute flex flex-wrap items-center justify-center space-x-2 mx-auto inset-x-0"
       >
@@ -46,7 +52,7 @@
     </div>
 
     <div class="video-wrapper relative">
-      <video id="their-video" autoplay playsinline></video>
+      <video id="their-video" class="mx-auto" autoplay playsinline></video>
     </div>
   </div>
 </template>
@@ -160,8 +166,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .video-wrapper {
-  height: 480px;
-  width: 640px;
+  width: 100vw;
 }
 .button-wrapper {
   bottom: 8px;

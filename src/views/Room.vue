@@ -26,7 +26,13 @@
       </button>
     </app-header>
     <div class="local-stream-wrapper relative">
-      <video id="js-local-stream" autoplay playsinline muted></video>
+      <video
+        id="js-local-stream"
+        class="mx-auto"
+        autoplay
+        playsinline
+        muted
+      ></video>
       <div
         class="button-wrapper absolute flex flex-wrap items-center justify-center space-x-2 mx-auto inset-x-0"
       >
@@ -101,8 +107,7 @@ export default defineComponent({
           VideoElement;
         newVideo.srcObject = stream;
         newVideo.playsInline = true;
-        newVideo.width = 400;
-        newVideo.className = 'flex-1 mx-2';
+        newVideo.className = 'flex-1';
         newVideo.setAttribute('data-peer-id', stream.peerId);
         remoteVideos.append(newVideo);
         await newVideo.play().catch(console.error);
@@ -186,9 +191,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.local-stream-wrapper {
-  height: 480px;
-  width: 640px;
+.local-stream-wrapper,
+.remote-streams {
+  width: 100vw;
 }
 .button-wrapper {
   bottom: 8px;

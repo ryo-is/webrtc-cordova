@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="app"
-    class="flex flex-col items-center justify-center h-screen text-font-color"
-  >
+  <div id="app" class="h-screen text-font-color">
     <!-- <div class="text-4xl">Vue3 Demo</div> -->
     <!-- <app-header></app-header> -->
     <router-view></router-view>

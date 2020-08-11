@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed inset-x-0 top-0 flex items-center justify-between flex-wrap h-16 pl-10 z-100 space-x-3"
+    class="flex items-center justify-between flex-wrap h-16 pl-10 z-100 space-x-3"
   >
     <div class="text-xl font-bold">WebRTC Demo</div>
     <div class="links divide-x divide-gray-400 flex-grow text-left">
