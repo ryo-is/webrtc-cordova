@@ -18,7 +18,7 @@
         Join
       </button>
       <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold mr-4 py-2 px-4 rounded focus:outline-none"
+        class="bg-gray-500 hover:bg-gray-700 text-white font-bold mr-4 py-2 px-4 rounded focus:outline-none"
         type="button"
         @click="onLeave"
       >
@@ -33,6 +33,10 @@
       playsinline
       muted
     ></video>
+    <video-button
+      :video="state.video"
+      @change-video="onChangeVideo"
+    ></video-button>
 
     <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
   </div>
@@ -41,10 +45,13 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { SfuRoom } from 'skyway-js'
-import AppHeader from '@/components/elements/header.vue'
+import AppHeader from '@/components/elements/AppHeader.vue'
+import VideoButton from '@/components/elements/VideoControlButton.vue'
 
 type State = {
   roomID: string
+  audio: boolean
+  video: boolean
 }
 
 interface VideoElement {
@@ -65,10 +72,12 @@ let remoteVideos: HTMLElement
 
 export default defineComponent({
   name: 'home',
-  components: { AppHeader },
+  components: { AppHeader, VideoButton },
   setup() {
     const state: State = reactive({
       roomID: '',
+      audio: true,
+      video: true,
     })
 
     const onJoin = () => {
@@ -125,6 +134,21 @@ export default defineComponent({
       if (room) room.close()
     }
 
+    const getMedia = async () => {
+      localStream = await navigator.mediaDevices.getUserMedia({
+        audio: state.audio,
+        video: state.video,
+      })
+      localVideo.muted = true
+      localVideo.srcObject = localStream
+      await localVideo.play()
+    }
+
+    const onChangeVideo = async () => {
+      state.video = !state.video
+      await getMedia()
+    }
+
     onMounted(async () => {
       try {
         localVideo = document.getElementById(
@@ -133,20 +157,13 @@ export default defineComponent({
         remoteVideos = document.getElementById(
           'js-remote-streams'
         ) as HTMLElement
-        localStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: true,
-        })
-
-        localVideo.muted = true
-        localVideo.srcObject = localStream
-        await localVideo.play()
+        await getMedia()
       } catch (err) {
         console.error(err)
       }
     })
 
-    return { state, onJoin, onLeave }
+    return { state, onJoin, onLeave, onChangeVideo }
   },
 })
 </script>

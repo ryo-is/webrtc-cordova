@@ -34,7 +34,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { MediaConnection } from 'skyway-js'
-import AppHeader from '@/components/elements/header.vue'
+import AppHeader from '@/components/elements/AppHeader.vue'
 
 type State = {
   peerID: string
