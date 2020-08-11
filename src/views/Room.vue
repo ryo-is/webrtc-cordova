@@ -39,13 +39,16 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { SfuRoom } from 'skyway-js'
 import AppHeader from '@/components/elements/header.vue'
 
 type State = {
   roomID: string
+}
+
+interface VideoElement {
+  playsInline: boolean
 }
 
 const peer = new Peer({
@@ -57,7 +60,7 @@ const peer = new Peer({
 
 let localStream: MediaStream
 let room: SfuRoom
-let localVideo
+let localVideo: HTMLVideoElement
 let remoteVideos: HTMLElement
 
 export default defineComponent({
@@ -72,16 +75,15 @@ export default defineComponent({
       if (!peer.open) {
         return
       }
-      console.log(localStream)
       room = peer.joinRoom(state.roomID, {
         mode: 'sfu',
         stream: localStream,
       })
-      console.log('room', room)
 
       room.on('stream', async (stream) => {
         console.log('stream', stream)
-        const newVideo = document.createElement('video') as any
+        const newVideo = document.createElement('video') as HTMLVideoElement &
+          VideoElement
         newVideo.srcObject = stream
         newVideo.playsInline = true
         newVideo.width = 400
@@ -94,22 +96,24 @@ export default defineComponent({
       room.on('peerLeave', (peerId) => {
         const remoteVideo = remoteVideos.querySelector(
           `[data-peer-id="${peerId}"]`
-        ) as any
-        if (remoteVideo) {
-          remoteVideo.srcObject
-            .getTracks()
-            .forEach((track: any) => track.stop())
+        ) as HTMLVideoElement
+        if (remoteVideo && remoteVideo.srcObject) {
+          const srcObj = remoteVideo.srcObject as MediaStream
+          srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop())
           remoteVideo.srcObject = null
           remoteVideo.remove()
         }
       })
 
       room.once('close', () => {
+        console.log(remoteVideos.children)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Array.from(remoteVideos.children).forEach((remoteVideo: any) => {
           if (remoteVideo.srcObject) {
-            remoteVideo.srcObject
+            const srcObj = remoteVideo.srcObject as MediaStream
+            srcObj
               .getTracks()
-              .forEach((track: any) => track.stop())
+              .forEach((track: MediaStreamTrack) => track.stop())
             remoteVideo.srcObject = null
             remoteVideo.remove()
           }
@@ -118,13 +122,17 @@ export default defineComponent({
     }
 
     const onLeave = () => {
-      room.close()
+      if (room) room.close()
     }
 
     onMounted(async () => {
       try {
-        localVideo = document.getElementById('js-local-stream') as any
-        remoteVideos = document.getElementById('js-remote-streams') as any
+        localVideo = document.getElementById(
+          'js-local-stream'
+        ) as HTMLVideoElement
+        remoteVideos = document.getElementById(
+          'js-remote-streams'
+        ) as HTMLElement
         localStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: true,
@@ -132,7 +140,6 @@ export default defineComponent({
 
         localVideo.muted = true
         localVideo.srcObject = localStream
-        localVideo.playsInline = true
         await localVideo.play()
       } catch (err) {
         console.error(err)
