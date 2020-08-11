@@ -26,18 +26,21 @@
       </button>
     </app-header>
     <div class="local-stream-wrapper relative">
-      <video
-        id="js-local-stream"
-        class="m-auto"
-        autoplay
-        playsinline
-        muted
-      ></video>
-      <video-button
-        class="video-button absolute"
-        :video="state.video"
-        @change-video="onChangeVideo"
-      ></video-button>
+      <video id="js-local-stream" autoplay playsinline muted></video>
+      <div
+        class="button-wrapper absolute flex flex-wrap items-center justify-center space-x-2 mx-auto inset-x-0"
+      >
+        <audio-button
+          class="audio-button"
+          :audio="state.audio"
+          @change-audio="onChangeAudio"
+        ></audio-button>
+        <video-button
+          class="video-button"
+          :video="state.video"
+          @change-video="onChangeVideo"
+        ></video-button>
+      </div>
     </div>
 
     <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
@@ -49,6 +52,7 @@ import { defineComponent, onMounted, reactive } from 'vue';
 import Peer, { SfuRoom } from 'skyway-js';
 import AppHeader from '@/components/elements/AppHeader.vue';
 import VideoButton from '@/components/elements/VideoControlButton.vue';
+import AudioButton from '@/components/elements/AudioControlButton.vue';
 
 type State = {
   roomID: string;
@@ -74,7 +78,7 @@ let remoteVideos: HTMLElement;
 
 export default defineComponent({
   name: 'home',
-  components: { AppHeader, VideoButton },
+  components: { AppHeader, VideoButton, AudioButton },
   setup() {
     const state: State = reactive({
       roomID: '',
@@ -155,6 +159,13 @@ export default defineComponent({
       await getMedia();
     };
 
+    const onChangeAudio = async () => {
+      state.audio = !state.audio;
+      localStream
+        .getAudioTracks()
+        .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
+    };
+
     onMounted(async () => {
       try {
         localVideo = document.getElementById(
@@ -169,7 +180,7 @@ export default defineComponent({
       }
     });
 
-    return { state, onJoin, onLeave, onChangeVideo };
+    return { state, onJoin, onLeave, onChangeVideo, onChangeAudio };
   },
 });
 </script>
@@ -179,8 +190,7 @@ export default defineComponent({
   height: 480px;
   width: 640px;
 }
-.video-button {
-  bottom: 12px;
-  right: 12px;
+.button-wrapper {
+  bottom: 8px;
 }
 </style>

@@ -29,11 +29,20 @@
 
     <div class="video-wrapper relative">
       <video id="skyway-video" autoplay playsinline muted></video>
-      <video-button
-        class="video-button absolute"
-        :video="state.video"
-        @change-video="onChangeVideo"
-      ></video-button>
+      <div
+        class="button-wrapper absolute flex flex-wrap items-center justify-center space-x-2 mx-auto inset-x-0"
+      >
+        <audio-button
+          class="audio-button"
+          :audio="state.audio"
+          @change-audio="onChangeAudio"
+        ></audio-button>
+        <video-button
+          class="video-button"
+          :video="state.video"
+          @change-video="onChangeVideo"
+        ></video-button>
+      </div>
     </div>
 
     <div class="video-wrapper relative">
@@ -47,6 +56,7 @@ import { defineComponent, onMounted, reactive } from 'vue';
 import Peer, { MediaConnection } from 'skyway-js';
 import AppHeader from '@/components/elements/AppHeader.vue';
 import VideoButton from '@/components/elements/VideoControlButton.vue';
+import AudioButton from '@/components/elements/AudioControlButton.vue';
 
 type State = {
   peerID: string;
@@ -68,7 +78,7 @@ let localMediaConnection: MediaConnection;
 
 export default defineComponent({
   name: 'home',
-  components: { AppHeader, VideoButton },
+  components: { AppHeader, VideoButton, AudioButton },
   setup() {
     const state: State = reactive({
       peerID: '',
@@ -115,6 +125,13 @@ export default defineComponent({
       await getMedia();
     };
 
+    const onChangeAudio = async () => {
+      state.audio = !state.audio;
+      localStream
+        .getAudioTracks()
+        .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
+    };
+
     onMounted(async () => {
       try {
         peer.once('open', () => {
@@ -136,7 +153,7 @@ export default defineComponent({
       }
     });
 
-    return { state, onCall, onCancel, onChangeVideo };
+    return { state, onCall, onCancel, onChangeVideo, onChangeAudio };
   },
 });
 </script>
@@ -146,8 +163,7 @@ export default defineComponent({
   height: 480px;
   width: 640px;
 }
-.video-button {
-  bottom: 12px;
-  right: 12px;
+.button-wrapper {
+  bottom: 8px;
 }
 </style>
