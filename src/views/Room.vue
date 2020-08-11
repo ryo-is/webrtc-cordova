@@ -41,11 +41,6 @@
           :audio="state.audio"
           @change-audio="onChangeAudio"
         ></audio-button>
-        <video-button
-          class="video-button"
-          :video="state.video"
-          @change-video="onChangeVideo"
-        ></video-button>
       </div>
     </div>
 
@@ -57,7 +52,6 @@
 import { defineComponent, onMounted, reactive } from 'vue';
 import Peer, { SfuRoom } from 'skyway-js';
 import AppHeader from '@/components/elements/AppHeader.vue';
-import VideoButton from '@/components/elements/VideoControlButton.vue';
 import AudioButton from '@/components/elements/AudioControlButton.vue';
 
 type State = {
@@ -84,7 +78,7 @@ let remoteVideos: HTMLElement;
 
 export default defineComponent({
   name: 'home',
-  components: { AppHeader, VideoButton, AudioButton },
+  components: { AppHeader, AudioButton },
   setup() {
     const state: State = reactive({
       roomID: '',
@@ -159,11 +153,6 @@ export default defineComponent({
       }
     };
 
-    const onChangeVideo = async () => {
-      state.video = !state.video;
-      await getMedia();
-    };
-
     const onChangeAudio = async () => {
       state.audio = !state.audio;
       localStream
@@ -185,7 +174,7 @@ export default defineComponent({
       }
     });
 
-    return { state, onJoin, onLeave, onChangeVideo, onChangeAudio };
+    return { state, onJoin, onLeave, onChangeAudio };
   },
 });
 </script>
