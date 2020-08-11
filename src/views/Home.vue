@@ -76,57 +76,54 @@ let localStream: MediaStream;
 let localVideo: HTMLVideoElement;
 let localMediaConnection: MediaConnection;
 
+const state: State = reactive({
+  peerID: '',
+  theirID: '',
+  audio: true,
+  video: true,
+});
+
+const setEventListener = (mediaConnection: MediaConnection) => {
+  mediaConnection.on('stream', (stream) => {
+    const videoElm = document.getElementById('their-video') as HTMLVideoElement;
+    videoElm.srcObject = stream;
+    videoElm.play();
+  });
+};
+
+const onCall = () => {
+  localMediaConnection = peer.call(state.theirID, localStream);
+  setEventListener(localMediaConnection);
+};
+
+const onCancel = () => {
+  if (localMediaConnection) localMediaConnection.close(true);
+};
+
+const getMedia = async () => {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: state.audio,
+      video: state.video,
+    });
+    localVideo.muted = true;
+    localVideo.srcObject = localStream;
+    await localVideo.play();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const onChangeAudio = async () => {
+  state.audio = !state.audio;
+  localStream
+    .getAudioTracks()
+    .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
+};
 export default defineComponent({
   name: 'home',
   components: { AppHeader, AudioButton },
   setup() {
-    const state: State = reactive({
-      peerID: '',
-      theirID: '',
-      audio: true,
-      video: true,
-    });
-
-    const setEventListener = (mediaConnection: MediaConnection) => {
-      mediaConnection.on('stream', (stream) => {
-        const videoElm = document.getElementById(
-          'their-video'
-        ) as HTMLVideoElement;
-        videoElm.srcObject = stream;
-        videoElm.play();
-      });
-    };
-
-    const onCall = () => {
-      localMediaConnection = peer.call(state.theirID, localStream);
-      setEventListener(localMediaConnection);
-    };
-
-    const onCancel = () => {
-      if (localMediaConnection) localMediaConnection.close(true);
-    };
-
-    const getMedia = async () => {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({
-          audio: state.audio,
-          video: state.video,
-        });
-        localVideo.muted = true;
-        localVideo.srcObject = localStream;
-        await localVideo.play();
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    const onChangeAudio = async () => {
-      state.audio = !state.audio;
-      localStream
-        .getAudioTracks()
-        .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
-    };
-
     onMounted(async () => {
       try {
         peer.once('open', () => {

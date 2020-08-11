@@ -76,90 +76,88 @@ let room: SfuRoom;
 let localVideo: HTMLVideoElement;
 let remoteVideos: HTMLElement;
 
+const state: State = reactive({
+  roomID: '',
+  audio: true,
+  video: true,
+});
+
+const onJoin = () => {
+  if (!peer.open) {
+    return;
+  }
+  room = peer.joinRoom(state.roomID, {
+    mode: 'sfu',
+    stream: localStream,
+  });
+
+  room.on('stream', async (stream) => {
+    console.log('stream', stream);
+    const newVideo = document.createElement('video') as HTMLVideoElement &
+      VideoElement;
+    newVideo.srcObject = stream;
+    newVideo.playsInline = true;
+    newVideo.className = 'flex-1';
+    newVideo.setAttribute('data-peer-id', stream.peerId);
+    remoteVideos.append(newVideo);
+    await newVideo.play().catch(console.error);
+  });
+
+  room.on('peerLeave', (peerId) => {
+    const remoteVideo = remoteVideos.querySelector(
+      `[data-peer-id="${peerId}"]`
+    ) as HTMLVideoElement;
+    if (remoteVideo && remoteVideo.srcObject) {
+      const srcObj = remoteVideo.srcObject as MediaStream;
+      srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+      remoteVideo.srcObject = null;
+      remoteVideo.remove();
+    }
+  });
+
+  room.once('close', () => {
+    console.log(remoteVideos.children);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Array.from(remoteVideos.children).forEach((remoteVideo: any) => {
+      if (remoteVideo.srcObject) {
+        const srcObj = remoteVideo.srcObject as MediaStream;
+        srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+        remoteVideo.srcObject = null;
+        remoteVideo.remove();
+      }
+    });
+  });
+};
+
+const onLeave = () => {
+  if (room) room.close();
+};
+
+const getMedia = async () => {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: state.audio,
+      video: state.video,
+    });
+    localVideo.muted = true;
+    localVideo.srcObject = localStream;
+    await localVideo.play();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const onChangeAudio = async () => {
+  state.audio = !state.audio;
+  localStream
+    .getAudioTracks()
+    .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
+};
+
 export default defineComponent({
   name: 'home',
   components: { AppHeader, AudioButton },
   setup() {
-    const state: State = reactive({
-      roomID: '',
-      audio: true,
-      video: true,
-    });
-
-    const onJoin = () => {
-      if (!peer.open) {
-        return;
-      }
-      room = peer.joinRoom(state.roomID, {
-        mode: 'sfu',
-        stream: localStream,
-      });
-
-      room.on('stream', async (stream) => {
-        console.log('stream', stream);
-        const newVideo = document.createElement('video') as HTMLVideoElement &
-          VideoElement;
-        newVideo.srcObject = stream;
-        newVideo.playsInline = true;
-        newVideo.className = 'flex-1';
-        newVideo.setAttribute('data-peer-id', stream.peerId);
-        remoteVideos.append(newVideo);
-        await newVideo.play().catch(console.error);
-      });
-
-      room.on('peerLeave', (peerId) => {
-        const remoteVideo = remoteVideos.querySelector(
-          `[data-peer-id="${peerId}"]`
-        ) as HTMLVideoElement;
-        if (remoteVideo && remoteVideo.srcObject) {
-          const srcObj = remoteVideo.srcObject as MediaStream;
-          srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-          remoteVideo.srcObject = null;
-          remoteVideo.remove();
-        }
-      });
-
-      room.once('close', () => {
-        console.log(remoteVideos.children);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Array.from(remoteVideos.children).forEach((remoteVideo: any) => {
-          if (remoteVideo.srcObject) {
-            const srcObj = remoteVideo.srcObject as MediaStream;
-            srcObj
-              .getTracks()
-              .forEach((track: MediaStreamTrack) => track.stop());
-            remoteVideo.srcObject = null;
-            remoteVideo.remove();
-          }
-        });
-      });
-    };
-
-    const onLeave = () => {
-      if (room) room.close();
-    };
-
-    const getMedia = async () => {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({
-          audio: state.audio,
-          video: state.video,
-        });
-        localVideo.muted = true;
-        localVideo.srcObject = localStream;
-        await localVideo.play();
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    const onChangeAudio = async () => {
-      state.audio = !state.audio;
-      localStream
-        .getAudioTracks()
-        .forEach((track: MediaStreamTrack) => (track.enabled = state.audio));
-    };
-
     onMounted(async () => {
       try {
         localVideo = document.getElementById(

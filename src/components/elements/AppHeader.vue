@@ -30,16 +30,16 @@ type State = {
   links: Link[];
 };
 
+const state: State = reactive({
+  links: [
+    { to: '/', label: 'HOME' },
+    { to: '/room', label: 'ROOM' },
+  ],
+});
+
 export default defineComponent({
   name: 'appHeader',
   setup() {
-    const state: State = reactive({
-      links: [
-        { to: '/', label: 'HOME' },
-        { to: '/room', label: 'ROOM' },
-      ],
-    });
-
     return {
       state,
     };
