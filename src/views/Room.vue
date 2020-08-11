@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
+    <div class="remote-streams flex" id="js-remote-streams"></div>
   </div>
 </template>
 
@@ -193,7 +193,12 @@ export default defineComponent({
 <style lang="scss" scoped>
 .local-stream-wrapper,
 .remote-streams {
+  height: calc((100vh - 64px) / 2);
   width: 100vw;
+
+  video {
+    height: 100%;
+  }
 }
 .button-wrapper {
   bottom: 8px;

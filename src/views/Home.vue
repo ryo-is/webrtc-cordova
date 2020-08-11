@@ -166,7 +166,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .video-wrapper {
+  height: calc((100vh - 64px) / 2);
   width: 100vw;
+
+  video {
+    height: 100%;
+  }
 }
 .button-wrapper {
   bottom: 8px;
