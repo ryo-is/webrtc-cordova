@@ -1,33 +1,32 @@
 <template>
   <div class="home">
-    <video id="skyway-video" width="400" autoplay playsinline></video>
-    <p>{{ state.peerID }}</p>
-    <div class="mb-4">
-      <label class="block text-md font-bold mb-2" for="their-id">
-        theirID
-      </label>
-      <input
-        v-model="state.theirID"
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
-        id="their-id"
-        type="text"
-        placeholder="theirID"
-      />
-    </div>
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
-      type="button"
-      @click="onCall"
-    >
-      Call
-    </button>
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
-      type="button"
-      @click="onCancel"
-    >
-      Cansel
-    </button>
+    <app-header>
+      <p class="mr-4">PeerID: {{ state.peerID }}</p>
+      <div class="mr-4">
+        <input
+          v-model="state.theirID"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
+          id="their-id"
+          type="text"
+          placeholder="theirID"
+        />
+      </div>
+      <button
+        class="mr-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
+        type="button"
+        @click="onCall"
+      >
+        Call
+      </button>
+      <button
+        class="mr-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
+        type="button"
+        @click="onCancel"
+      >
+        Cansel
+      </button>
+    </app-header>
+    <video id="skyway-video" width="400" autoplay playsinline muted></video>
     <video id="their-video" width="400" autoplay playsinline></video>
   </div>
 </template>
@@ -35,6 +34,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { MediaConnection } from 'skyway-js'
+import AppHeader from '@/components/elements/header.vue'
 
 type State = {
   peerID: string
@@ -53,6 +53,7 @@ let localMediaConnection: MediaConnection
 
 export default defineComponent({
   name: 'home',
+  components: { AppHeader },
   setup() {
     const state: State = reactive({
       peerID: '',

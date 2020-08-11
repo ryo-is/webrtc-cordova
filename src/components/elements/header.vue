@@ -1,6 +1,20 @@
 <template>
-  <div class="fixed inset-x-0 top-0 flex items-center h-12 px-10 z-100">
-    <div class="mr-4 text-xl font-bold">WebRTC Demo</div>
+  <div
+    class="fixed inset-x-0 top-0 flex items-center justify-between flex-wrap h-16 pl-10 z-100 space-x-3"
+  >
+    <div class="text-xl font-bold">WebRTC Demo</div>
+    <div class="links divide-x divide-gray-400 flex-grow text-left">
+      <a
+        class="px-4"
+        v-for="link in state.links"
+        :key="link.label"
+        :href="link.to"
+        >{{ link.label }}</a
+      >
+    </div>
+    <div class="slots flex items-center w-auto">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -22,7 +36,7 @@ export default defineComponent({
     const state: State = reactive({
       links: [
         { to: '/', label: 'HOME' },
-        { to: '/todo', label: 'TODO' },
+        { to: '/room', label: 'ROOM' },
       ],
     })
 

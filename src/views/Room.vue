@@ -1,35 +1,38 @@
 <template>
   <div class="room">
+    <app-header>
+      <div class="mr-4">
+        <input
+          v-model="state.roomID"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
+          id="room-id"
+          type="text"
+          placeholder="Room Name"
+        />
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold mr-4 py-2 px-4 rounded focus:outline-none"
+        type="button"
+        @click="onJoin"
+      >
+        Join
+      </button>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold mr-4 py-2 px-4 rounded focus:outline-none"
+        type="button"
+        @click="onLeave"
+      >
+        Leave
+      </button>
+    </app-header>
     <video
       id="js-local-stream"
       class="m-auto"
       width="400"
       autoplay
       playsinline
+      muted
     ></video>
-    <div class="my-4">
-      <input
-        v-model="state.roomID"
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
-        id="room-id"
-        type="text"
-        placeholder="Room Name"
-      />
-    </div>
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
-      type="button"
-      @click="onJoin"
-    >
-      Join
-    </button>
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
-      type="button"
-      @click="onLeave"
-    >
-      Leave
-    </button>
 
     <div class="remote-streams mt-4 flex" id="js-remote-streams"></div>
   </div>
@@ -39,6 +42,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineComponent, onMounted, reactive } from 'vue'
 import Peer, { SfuRoom } from 'skyway-js'
+import AppHeader from '@/components/elements/header.vue'
 
 type State = {
   roomID: string
@@ -58,6 +62,7 @@ let remoteVideos: HTMLElement
 
 export default defineComponent({
   name: 'home',
+  components: { AppHeader },
   setup() {
     const state: State = reactive({
       roomID: '',
