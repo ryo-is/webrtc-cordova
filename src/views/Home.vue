@@ -26,89 +26,128 @@
         Cansel
       </button>
     </app-header>
-    <video id="skyway-video" width="400" autoplay playsinline muted></video>
-    <video id="their-video" width="400" autoplay playsinline></video>
+
+    <div class="video-wrapper relative">
+      <video id="skyway-video" autoplay playsinline muted></video>
+      <video-button
+        class="video-button absolute"
+        :video="state.video"
+        @change-video="onChangeVideo"
+      ></video-button>
+    </div>
+
+    <div class="video-wrapper relative">
+      <video id="their-video" autoplay playsinline></video>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue'
-import Peer, { MediaConnection } from 'skyway-js'
-import AppHeader from '@/components/elements/AppHeader.vue'
+import { defineComponent, onMounted, reactive } from 'vue';
+import Peer, { MediaConnection } from 'skyway-js';
+import AppHeader from '@/components/elements/AppHeader.vue';
+import VideoButton from '@/components/elements/VideoControlButton.vue';
 
 type State = {
-  peerID: string
-  theirID: string
-}
+  peerID: string;
+  theirID: string;
+  audio: boolean;
+  video: boolean;
+};
 
 const peer = new Peer({
   key: process.env.VUE_APP_SKYWAY_APIKEY
     ? process.env.VUE_APP_SKYWAY_APIKEY
     : '',
   debug: 3,
-})
+});
 
-let localStream: MediaStream
-let localMediaConnection: MediaConnection
+let localStream: MediaStream;
+let localVideo: HTMLVideoElement;
+let localMediaConnection: MediaConnection;
 
 export default defineComponent({
   name: 'home',
-  components: { AppHeader },
+  components: { AppHeader, VideoButton },
   setup() {
     const state: State = reactive({
       peerID: '',
       theirID: '',
-    })
+      audio: true,
+      video: true,
+    });
 
     const setEventListener = (mediaConnection: MediaConnection) => {
       mediaConnection.on('stream', (stream) => {
-        // video要素にカメラ映像をセットして再生
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const videoElm = document.getElementById('their-video') as any
-        videoElm.srcObject = stream
-        videoElm.play()
-      })
-    }
+        const videoElm = document.getElementById(
+          'their-video'
+        ) as HTMLVideoElement;
+        videoElm.srcObject = stream;
+        videoElm.play();
+      });
+    };
 
     const onCall = () => {
-      localMediaConnection = peer.call(state.theirID, localStream)
-      setEventListener(localMediaConnection)
-    }
+      localMediaConnection = peer.call(state.theirID, localStream);
+      setEventListener(localMediaConnection);
+    };
 
     const onCancel = () => {
-      if (localMediaConnection) localMediaConnection.close(true)
-    }
+      if (localMediaConnection) localMediaConnection.close(true);
+    };
 
-    onMounted(() => {
-      // カメラ映像取得
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          // 成功時にvideo要素にカメラ映像をセットし、再生
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const videoElm = document.getElementById('skyway-video') as any
-          videoElm.srcObject = stream
-          videoElm.play()
-          // 着信時に相手にカメラ映像を返せるように、グローバル変数に保存しておく
-          localStream = stream
-        })
-        .catch((error) => {
-          // 失敗時にはエラーログを出力
-          console.error('mediaDevice.getUserMedia() error:', error)
-          return
-        })
+    const getMedia = async () => {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: state.audio,
+          video: state.video,
+        });
+        localVideo.muted = true;
+        localVideo.srcObject = localStream;
+        await localVideo.play();
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-      peer.on('open', () => {
-        state.peerID = peer.id
-      })
+    const onChangeVideo = async () => {
+      state.video = !state.video;
+      await getMedia();
+    };
 
-      peer.on('call', (mediaConnection) => {
-        mediaConnection.answer(localStream)
-        setEventListener(mediaConnection)
-      })
-    })
+    onMounted(async () => {
+      try {
+        peer.once('open', () => {
+          state.peerID = peer.id;
+        });
 
-    return { state, onCall, onCancel }
+        peer.on('call', (mediaConnection) => {
+          mediaConnection.answer(localStream);
+          setEventListener(mediaConnection);
+        });
+
+        localVideo = document.getElementById(
+          'skyway-video'
+        ) as HTMLVideoElement;
+        await getMedia();
+      } catch (error) {
+        console.error('mediaDevice.getUserMedia() error:', error);
+        return;
+      }
+    });
+
+    return { state, onCall, onCancel, onChangeVideo };
   },
-})
+});
 </script>
+
+<style lang="scss" scoped>
+.video-wrapper {
+  height: 480px;
+  width: 640px;
+}
+.video-button {
+  bottom: 12px;
+  right: 12px;
+}
+</style>

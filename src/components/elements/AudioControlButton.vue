@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, SetupContext } from 'vue'
+import { defineComponent, SetupContext } from 'vue';
 
 export default defineComponent({
   props: {
@@ -35,12 +35,12 @@ export default defineComponent({
   },
   setup(props, context: SetupContext) {
     const onChangeAudio = () => {
-      context.emit('change-audio')
-    }
+      context.emit('change-audio');
+    };
 
     return {
       onChangeAudio,
-    }
+    };
   },
-})
+});
 </script>

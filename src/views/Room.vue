@@ -45,19 +45,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue'
-import Peer, { SfuRoom } from 'skyway-js'
-import AppHeader from '@/components/elements/AppHeader.vue'
-import VideoButton from '@/components/elements/VideoControlButton.vue'
+import { defineComponent, onMounted, reactive } from 'vue';
+import Peer, { SfuRoom } from 'skyway-js';
+import AppHeader from '@/components/elements/AppHeader.vue';
+import VideoButton from '@/components/elements/VideoControlButton.vue';
 
 type State = {
-  roomID: string
-  audio: boolean
-  video: boolean
-}
+  roomID: string;
+  audio: boolean;
+  video: boolean;
+};
 
 interface VideoElement {
-  playsInline: boolean
+  playsInline: boolean;
 }
 
 const peer = new Peer({
@@ -65,12 +65,12 @@ const peer = new Peer({
     ? process.env.VUE_APP_SKYWAY_APIKEY
     : '',
   debug: 3,
-})
+});
 
-let localStream: MediaStream
-let room: SfuRoom
-let localVideo: HTMLVideoElement
-let remoteVideos: HTMLElement
+let localStream: MediaStream;
+let room: SfuRoom;
+let localVideo: HTMLVideoElement;
+let remoteVideos: HTMLElement;
 
 export default defineComponent({
   name: 'home',
@@ -80,94 +80,98 @@ export default defineComponent({
       roomID: '',
       audio: true,
       video: true,
-    })
+    });
 
     const onJoin = () => {
       if (!peer.open) {
-        return
+        return;
       }
       room = peer.joinRoom(state.roomID, {
         mode: 'sfu',
         stream: localStream,
-      })
+      });
 
       room.on('stream', async (stream) => {
-        console.log('stream', stream)
+        console.log('stream', stream);
         const newVideo = document.createElement('video') as HTMLVideoElement &
-          VideoElement
-        newVideo.srcObject = stream
-        newVideo.playsInline = true
-        newVideo.width = 400
-        newVideo.className = 'flex-1 mx-2'
-        newVideo.setAttribute('data-peer-id', stream.peerId)
-        remoteVideos.append(newVideo)
-        await newVideo.play().catch(console.error)
-      })
+          VideoElement;
+        newVideo.srcObject = stream;
+        newVideo.playsInline = true;
+        newVideo.width = 400;
+        newVideo.className = 'flex-1 mx-2';
+        newVideo.setAttribute('data-peer-id', stream.peerId);
+        remoteVideos.append(newVideo);
+        await newVideo.play().catch(console.error);
+      });
 
       room.on('peerLeave', (peerId) => {
         const remoteVideo = remoteVideos.querySelector(
           `[data-peer-id="${peerId}"]`
-        ) as HTMLVideoElement
+        ) as HTMLVideoElement;
         if (remoteVideo && remoteVideo.srcObject) {
-          const srcObj = remoteVideo.srcObject as MediaStream
-          srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop())
-          remoteVideo.srcObject = null
-          remoteVideo.remove()
+          const srcObj = remoteVideo.srcObject as MediaStream;
+          srcObj.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+          remoteVideo.srcObject = null;
+          remoteVideo.remove();
         }
-      })
+      });
 
       room.once('close', () => {
-        console.log(remoteVideos.children)
+        console.log(remoteVideos.children);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Array.from(remoteVideos.children).forEach((remoteVideo: any) => {
           if (remoteVideo.srcObject) {
-            const srcObj = remoteVideo.srcObject as MediaStream
+            const srcObj = remoteVideo.srcObject as MediaStream;
             srcObj
               .getTracks()
-              .forEach((track: MediaStreamTrack) => track.stop())
-            remoteVideo.srcObject = null
-            remoteVideo.remove()
+              .forEach((track: MediaStreamTrack) => track.stop());
+            remoteVideo.srcObject = null;
+            remoteVideo.remove();
           }
-        })
-      })
-    }
+        });
+      });
+    };
 
     const onLeave = () => {
-      if (room) room.close()
-    }
+      if (room) room.close();
+    };
 
     const getMedia = async () => {
-      localStream = await navigator.mediaDevices.getUserMedia({
-        audio: state.audio,
-        video: state.video,
-      })
-      localVideo.muted = true
-      localVideo.srcObject = localStream
-      await localVideo.play()
-    }
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: state.audio,
+          video: state.video,
+        });
+        localVideo.muted = true;
+        localVideo.srcObject = localStream;
+        await localVideo.play();
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
     const onChangeVideo = async () => {
-      state.video = !state.video
-      await getMedia()
-    }
+      state.video = !state.video;
+      await getMedia();
+    };
 
     onMounted(async () => {
       try {
         localVideo = document.getElementById(
           'js-local-stream'
-        ) as HTMLVideoElement
+        ) as HTMLVideoElement;
         remoteVideos = document.getElementById(
           'js-remote-streams'
-        ) as HTMLElement
-        await getMedia()
+        ) as HTMLElement;
+        await getMedia();
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
-    })
+    });
 
-    return { state, onJoin, onLeave, onChangeVideo }
+    return { state, onJoin, onLeave, onChangeVideo };
   },
-})
+});
 </script>
 
 <style lang="scss" scoped>
